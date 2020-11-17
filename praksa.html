@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Census</title>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.17/"></script>
+    <script>
+        require(["esri/Map", "esri/views/MapView", "esri/layers/FeatureLayer", "esri/symbols/SimpleMarkerSymbol"], function(Map, MapView, FeatureLayer, SimpleMarkerSymbol) {
+            var map = new Map({
+                basemap: "topo-vector"
+            });
+            var view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [-95, 39, 37, 36],
+                zoom: 4
+            });
+            var censusBlockPointsLayer = new FeatureLayer({
+                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/0"
+            });
+            map.add(censusBlockPointsLayer);
+            var censusBlockGroupLayer = new FeatureLayer({
+                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/1"
+            });
+            map.add(censusBlockGroupLayer);
+            var countiesLayer = new FeatureLayer({
+                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/2",
+                outFields: ["NAME", "STATE_NAME", "STATE_FIPS"],
+                popupTemplate: {
+                    title: "{NAME}",
+                    content: "{STATE_NAME}, {STATE_FIPS}"
+                }
+            });
+            map.add(countiesLayer);
+            var statesLayer = new FeatureLayer({
+                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/3",
+                outFields: ["STATE_NAME", "SUB_REGION", "STATE_ABBR"],
+                popupTemplate: {
+                    title: "{STATE_NAME}",
+                    content: "{SUB_REGION}, {STATE_ABBR}"
+                }
+            });
+            map.add(statesLayer);
+        });
+    </script>
+</head>
+
+<body>
+    <div id="viewDiv"></div>
+</body>
+
+</html>
