@@ -47,13 +47,124 @@
             map.add(countiesLayer);
             var statesLayer = new FeatureLayer({
                 url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/3",
-                outFields: ["STATE_NAME", "SUB_REGION", "STATE_ABBR"],
+                outFields: ["STATE_NAME", "WHITE", "SUB_REGION", "STATE_ABBR"],
                 popupTemplate: {
-                    title: "{STATE_NAME}",
+                    title: "{STATE_NAME} {WHITE}",
                     content: "{SUB_REGION}, {STATE_ABBR}"
                 }
             });
             map.add(statesLayer);
+
+            var sqlExpressionsBlockPoint = [
+                "STATE_FIPS > '30'",
+                "CNTY_FIPS > '20'"
+            ];
+
+            var sqlExpressionsBlockGroup = [
+                "STATE_FIPS > '10'",
+                "CNTY_FIPS > '40'",
+                "AGE_30_39 > 1000"
+            ];
+
+            var sqlExpressionsCounties = [
+                "AGE_18_21 > 2000",
+                "STATE_FIPS > '30'",
+                "AGE_22_29 > 3000",
+                "AGE_30_39 > 4000"
+            ];
+
+            var sqlExpressionsState = [
+                "STATE_FIPS > '30'",
+                "WHITE < 2000000"
+            ];
+
+            var selectFilter1 = document.createElement("select");
+            selectFilter1.setAttribute("class", "esri-widget esri-select");
+            selectFilter1.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
+
+            var selectFilter2 = document.createElement("select");
+            selectFilter2.setAttribute("class", "esri-widget esri-select");
+            selectFilter2.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
+
+            var selectFilter3 = document.createElement("select");
+            selectFilter3.setAttribute("class", "esri-widget esri-select");
+            selectFilter3.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
+
+            var selectFilter4 = document.createElement("select");
+            selectFilter4.setAttribute("class", "esri-widget esri-select");
+            selectFilter4.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
+
+            var blockPointsLabel = document.createElement("label");
+            blockPointsLabel.textContent = "Census Block Points";
+            sqlExpressionsBlockPoint.forEach(function(sql) {
+                var option = document.createElement("option");
+                option.value = sql;
+                option.innerHTML = sql;
+                selectFilter3.appendChild(option);
+            });
+
+            var blockGroupLabel = document.createElement("label");
+            blockGroupLabel.textContent = "Census Block Group";
+            sqlExpressionsBlockGroup.forEach(function(sql) {
+                var option = document.createElement("option");
+                option.value = sql;
+                option.innerHTML = sql;
+                selectFilter4.appendChild(option);
+            });
+
+            var contiesLabel = document.createElement("label");
+            contiesLabel.textContent = "Detailed Counties";
+            sqlExpressionsCounties.forEach(function(sql) {
+                var option = document.createElement("option");
+                option.value = sql;
+                option.innerHTML = sql;
+                selectFilter1.appendChild(option);
+            });
+
+            var stateLabel = document.createElement("label");
+            stateLabel.textContent = "State";
+            sqlExpressionsState.forEach(function(sql) {
+                var option = document.createElement("option");
+                option.value = sql;
+                option.innerHTML = sql;
+                selectFilter2.appendChild(option);
+            });
+            view.ui.add(contiesLabel, "top-right");
+            view.ui.add(selectFilter1, "top-right");
+            view.ui.add(stateLabel, "top-right");
+            view.ui.add(selectFilter2, "top-right");
+            view.ui.add(blockPointsLabel, "top-right");
+            view.ui.add(selectFilter3, "top-right");
+            view.ui.add(blockGroupLabel, "top-right");
+            view.ui.add(selectFilter4, "top-right");
+
+            function setContiesLayerFilter(expression) {
+                countiesLayer.definitionExpression = expression;
+            }
+            selectFilter1.addEventListener('change', function(event) {
+                setContiesLayerFilter(event.target.value);
+            });
+
+            function setStateLayerFilter(expression) {
+                statesLayer.definitionExpression = expression;
+            }
+            selectFilter2.addEventListener('change', function(event) {
+                setStateLayerFilter(event.target.value);
+            });
+
+            function setBlockPointsLayerFilter(expression) {
+                censusBlockPointsLayer.definitionExpression = expression;
+            }
+            selectFilter3.addEventListener('change', function(event) {
+                setBlockPointsLayerFilter(event.target.value);
+            });
+
+            function setBlockGroupLayerFilter(expression) {
+                censusBlockGroupLayer.definitionExpression = expression;
+            }
+            selectFilter4.addEventListener('change', function(event) {
+                setBlockGroupLayerFilter(event.target.value);
+            });
         });
     </script>
 </head>
