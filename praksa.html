@@ -112,8 +112,8 @@
                 selectFilter4.appendChild(option);
             });
 
-            var contiesLabel = document.createElement("label");
-            contiesLabel.textContent = "Detailed Counties";
+            var countiesLabel = document.createElement("label");
+            countiesLabel.textContent = "Detailed Counties";
             sqlExpressionsCounties.forEach(function(sql) {
                 var option = document.createElement("option");
                 option.value = sql;
@@ -129,7 +129,7 @@
                 option.innerHTML = sql;
                 selectFilter2.appendChild(option);
             });
-            view.ui.add(contiesLabel, "top-right");
+            view.ui.add(countiesLabel, "top-right");
             view.ui.add(selectFilter1, "top-right");
             view.ui.add(stateLabel, "top-right");
             view.ui.add(selectFilter2, "top-right");
@@ -138,11 +138,11 @@
             view.ui.add(blockGroupLabel, "top-right");
             view.ui.add(selectFilter4, "top-right");
 
-            function setContiesLayerFilter(expression) {
+            function setCountiesLayerFilter(expression) {
                 countiesLayer.definitionExpression = expression;
             }
             selectFilter1.addEventListener('change', function(event) {
-                setContiesLayerFilter(event.target.value);
+                setCountiesLayerFilter(event.target.value);
             });
 
             function setStateLayerFilter(expression) {
@@ -165,12 +165,56 @@
             selectFilter4.addEventListener('change', function(event) {
                 setBlockGroupLayerFilter(event.target.value);
             });
+
+            var table = document.getElementById("toc");
+            view.ui.add(table, "top-left");
+
+            var blockPointLayerToggle = document.getElementById("blockPoints");
+            blockPointLayerToggle.addEventListener("change", function() {
+                censusBlockPointsLayer.visible = blockPointLayerToggle.checked;
+            });
+
+            var blockGroupToggle = document.getElementById("blockGroup");
+            blockGroupToggle.addEventListener("change", function() {
+                censusBlockGroupLayer.visible = blockGroupToggle.checked;
+            });
+
+            var countiesToggle = document.getElementById("counties");
+            countiesToggle.addEventListener("change", function() {
+                countiesLayer.visible = countiesToggle.checked;
+            });
+
+            var stateToggle = document.getElementById("state");
+            stateToggle.addEventListener("change", function() {
+                statesLayer.visible = stateToggle.checked;
+            });
         });
     </script>
 </head>
 
 <body>
     <div id="viewDiv"></div>
-</body>
+    <table id="toc">
+        <tr>
+            <th>Layers</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>Block Points Layer</td>
+            <td><input type="checkbox" id="blockPoints" checked /></td>
+        </tr>
+        <tr>
+            <td>Block Group Layer</td>
+            <td><input type="checkbox" id="blockGroup" checked/></td>
+        </tr>
+        <tr>
+            <td>Counties Layer</td>
+            <td><input type="checkbox" id="counties" checked/></td>
+        </tr>
+        <tr>
+            <td>State Layer</td>
+            <td><input type="checkbox" id="state" checked/></td>
+        </tr>
+    </table>
 
 </html>
