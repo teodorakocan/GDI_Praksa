@@ -5,216 +5,146 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>Census</title>
-    <style>
-        html,
-        body,
-        #viewDiv {
-            padding: 0;
-            margin: 0;
-            height: 100%;
-            width: 100%;
-        }
-    </style>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
     <script src="https://js.arcgis.com/4.17/"></script>
-    <script>
-        require(["esri/Map", "esri/views/MapView", "esri/layers/FeatureLayer", "esri/symbols/SimpleMarkerSymbol"], function(Map, MapView, FeatureLayer, SimpleMarkerSymbol) {
-            var map = new Map({
-                basemap: "topo-vector"
-            });
-            var view = new MapView({
-                container: "viewDiv",
-                map: map,
-                center: [-95, 39, 37, 36],
-                zoom: 4
-            });
-            var censusBlockPointsLayer = new FeatureLayer({
-                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/0"
-            });
-            map.add(censusBlockPointsLayer);
-            var censusBlockGroupLayer = new FeatureLayer({
-                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/1"
-            });
-            map.add(censusBlockGroupLayer);
-            var countiesLayer = new FeatureLayer({
-                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/2",
-                outFields: ["NAME", "STATE_NAME", "STATE_FIPS"],
-                popupTemplate: {
-                    title: "{NAME}",
-                    content: "{STATE_NAME}, {STATE_FIPS}"
-                }
-            });
-            map.add(countiesLayer);
-            var statesLayer = new FeatureLayer({
-                url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/3",
-                outFields: ["STATE_NAME", "WHITE", "SUB_REGION", "STATE_ABBR"],
-                popupTemplate: {
-                    title: "{STATE_NAME} {WHITE}",
-                    content: "{SUB_REGION}, {STATE_ABBR}"
-                }
-            });
-            map.add(statesLayer);
-
-            var sqlExpressionsBlockPoint = [
-                "STATE_FIPS > '30'",
-                "CNTY_FIPS > '20'"
-            ];
-
-            var sqlExpressionsBlockGroup = [
-                "STATE_FIPS > '10'",
-                "CNTY_FIPS > '40'",
-                "AGE_30_39 > 1000"
-            ];
-
-            var sqlExpressionsCounties = [
-                "AGE_18_21 > 2000",
-                "STATE_FIPS > '30'",
-                "AGE_22_29 > 3000",
-                "AGE_30_39 > 4000"
-            ];
-
-            var sqlExpressionsState = [
-                "STATE_FIPS > '30'",
-                "WHITE < 2000000"
-            ];
-
-            var selectFilter1 = document.createElement("select");
-            selectFilter1.setAttribute("class", "esri-widget esri-select");
-            selectFilter1.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
-
-            var selectFilter2 = document.createElement("select");
-            selectFilter2.setAttribute("class", "esri-widget esri-select");
-            selectFilter2.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
-
-            var selectFilter3 = document.createElement("select");
-            selectFilter3.setAttribute("class", "esri-widget esri-select");
-            selectFilter3.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
-
-            var selectFilter4 = document.createElement("select");
-            selectFilter4.setAttribute("class", "esri-widget esri-select");
-            selectFilter4.setAttribute("style", "width:275px; font-family: Avenir Next W00; font-size:1em;");
-
-            var blockPointsLabel = document.createElement("label");
-            blockPointsLabel.textContent = "Census Block Points";
-            sqlExpressionsBlockPoint.forEach(function(sql) {
-                var option = document.createElement("option");
-                option.value = sql;
-                option.innerHTML = sql;
-                selectFilter3.appendChild(option);
-            });
-
-            var blockGroupLabel = document.createElement("label");
-            blockGroupLabel.textContent = "Census Block Group";
-            sqlExpressionsBlockGroup.forEach(function(sql) {
-                var option = document.createElement("option");
-                option.value = sql;
-                option.innerHTML = sql;
-                selectFilter4.appendChild(option);
-            });
-
-            var countiesLabel = document.createElement("label");
-            countiesLabel.textContent = "Detailed Counties";
-            sqlExpressionsCounties.forEach(function(sql) {
-                var option = document.createElement("option");
-                option.value = sql;
-                option.innerHTML = sql;
-                selectFilter1.appendChild(option);
-            });
-
-            var stateLabel = document.createElement("label");
-            stateLabel.textContent = "State";
-            sqlExpressionsState.forEach(function(sql) {
-                var option = document.createElement("option");
-                option.value = sql;
-                option.innerHTML = sql;
-                selectFilter2.appendChild(option);
-            });
-            view.ui.add(countiesLabel, "top-right");
-            view.ui.add(selectFilter1, "top-right");
-            view.ui.add(stateLabel, "top-right");
-            view.ui.add(selectFilter2, "top-right");
-            view.ui.add(blockPointsLabel, "top-right");
-            view.ui.add(selectFilter3, "top-right");
-            view.ui.add(blockGroupLabel, "top-right");
-            view.ui.add(selectFilter4, "top-right");
-
-            function setCountiesLayerFilter(expression) {
-                countiesLayer.definitionExpression = expression;
-            }
-            selectFilter1.addEventListener('change', function(event) {
-                setCountiesLayerFilter(event.target.value);
-            });
-
-            function setStateLayerFilter(expression) {
-                statesLayer.definitionExpression = expression;
-            }
-            selectFilter2.addEventListener('change', function(event) {
-                setStateLayerFilter(event.target.value);
-            });
-
-            function setBlockPointsLayerFilter(expression) {
-                censusBlockPointsLayer.definitionExpression = expression;
-            }
-            selectFilter3.addEventListener('change', function(event) {
-                setBlockPointsLayerFilter(event.target.value);
-            });
-
-            function setBlockGroupLayerFilter(expression) {
-                censusBlockGroupLayer.definitionExpression = expression;
-            }
-            selectFilter4.addEventListener('change', function(event) {
-                setBlockGroupLayerFilter(event.target.value);
-            });
-
-            var table = document.getElementById("toc");
-            view.ui.add(table, "top-left");
-
-            var blockPointLayerToggle = document.getElementById("blockPoints");
-            blockPointLayerToggle.addEventListener("change", function() {
-                censusBlockPointsLayer.visible = blockPointLayerToggle.checked;
-            });
-
-            var blockGroupToggle = document.getElementById("blockGroup");
-            blockGroupToggle.addEventListener("change", function() {
-                censusBlockGroupLayer.visible = blockGroupToggle.checked;
-            });
-
-            var countiesToggle = document.getElementById("counties");
-            countiesToggle.addEventListener("change", function() {
-                countiesLayer.visible = countiesToggle.checked;
-            });
-
-            var stateToggle = document.getElementById("state");
-            stateToggle.addEventListener("change", function() {
-                statesLayer.visible = stateToggle.checked;
-            });
-        });
-    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="praksa.js"></script>
 </head>
 
 <body>
+    <div class="container">
+        <h2>Layers</h2>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Home</a></li>
+            <li><a data-toggle="tab" href="#blockPointsTab">Census Block Points</a></li>
+            <li><a data-toggle="tab" href="#blockGroupTab">Census Block Group</a></li>
+            <li><a data-toggle="tab" href="#countiesTab">Counties</a></li>
+            <li><a data-toggle="tab" href="#statesTab">States</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <h3>Hide layer</h3>
+                <table id="toc" class="table">
+                    <tr>
+                        <td>Block Points Layer</td>
+                        <td><input type="checkbox" id="blockPoints" checked /></td>
+                    </tr>
+                    <tr>
+                        <td>Block Group Layer</td>
+                        <td><input type="checkbox" id="blockGroup" checked/></td>
+                    </tr>
+                    <tr>
+                        <td>Counties Layer</td>
+                        <td><input type="checkbox" id="counties" checked/></td>
+                    </tr>
+                    <tr>
+                        <td>State Layer</td>
+                        <td><input type="checkbox" id="state" checked/></td>
+                    </tr>
+                    <tr>
+                        <td>Basemap</td>
+                        <td><input type="checkbox" id="basemap" checked/></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="blockPointsTab" class="tab-pane fade">
+                <h3>Census Block Points</h3>
+                <form class="form-inline" id="filterPoints">
+                    <div class="form-group mb-2">
+                        <select id="points" class="form-control">
+                            <option value="HOUSEHOLDS">Households</option>
+                            <option value="STATE_FIPS">State fips</option>
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select id="operators1" class="form-control">
+                            <option value="less">&lt</option>
+                            <option value=">">></option>
+                            <option value="=">=</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-4 mb-3">
+                        <input type="number" id="pointValue" class="form-control" />
+                    </div>
+                    <button type="button" class="btn btn-primary mb-2" id="btn_point">Filter layer</button>
+                </form>
+                <button type="button" class="refresh btn btn-primary" id="refreshPoints">Refresh</button>
+            </div>
+            <div id="blockGroupTab" class="tab-pane fade">
+                <h3>Census Block Group</h3>
+                <form class="form-inline" id="filterGroup">
+                    <div class="form-group mb-2">
+                        <select id="group" class="form-control">
+                            <option value="FEMALES">Females</option>
+                            <option value="AGE_22_29">Age between 22 to 29</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select id="operators2" class="form-control">
+                            <option value="less">&lt</option>
+                            <option value=">">></option>
+                            <option value="=">=</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-4 mb-3">
+                        <input type="number" id="groupValue" class="form-control" />
+                    </div>
+                    <button type="button" class="btn btn-primary mb-2" id="btn_group">Filter layer</button>
+                </form>
+                <button type="button" class="refresh btn btn-primary">Refresh</button>
+            </div>
+            <div id="countiesTab" class="tab-pane fade">
+                <h3>Counties</h3>
+                <form class="form-inline" id="filterCounties">
+                    <div class="form-group mb-2">
+                        <select id="countiesID" class="form-control">
+                            <option value="NAME">Name</option>
+                            <option value="CNTY_FIPS">City fips</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select id="operators3" class="form-control">
+                            <option value="=">=</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-4 mb-3">
+                        <input type="text" id="countieValue" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" id="btn_counties">Filter layer</button>
+                </form>
+                <button type="button" class="refresh btn btn-primary">Refresh</button>
+            </div>
+            <div id="statesTab" class="tab-pane fade">
+                <h3>States</h3>
+                <form class="form-inline" id="filterStates">
+                    <div class="form-group mb-2">
+                        <select id="states" class="form-control">
+                            <option value="STATE_NAME">State name </option>
+                            <option value="STATE_ABBR">State abbr</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select id="operators4" class="form-control">
+                            <option value="=">=</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-4 mb-3">
+                        <input type="text" id="stateValue" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" id="btn_state">Filter layer</button>
+                </form>
+                <button type="button" class="refresh btn btn-primary">Refresh</button>
+            </div>
+        </div>
+    </div><br/>
     <div id="viewDiv"></div>
-    <table id="toc">
-        <tr>
-            <th>Layers</th>
-            <th></th>
-        </tr>
-        <tr>
-            <td>Block Points Layer</td>
-            <td><input type="checkbox" id="blockPoints" checked /></td>
-        </tr>
-        <tr>
-            <td>Block Group Layer</td>
-            <td><input type="checkbox" id="blockGroup" checked/></td>
-        </tr>
-        <tr>
-            <td>Counties Layer</td>
-            <td><input type="checkbox" id="counties" checked/></td>
-        </tr>
-        <tr>
-            <td>State Layer</td>
-            <td><input type="checkbox" id="state" checked/></td>
-        </tr>
-    </table>
+</body>
 
 </html>
