@@ -2,149 +2,215 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
     <title>Census</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.34/dijit/themes/nihilo/nihilo.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.34/esri/css/esri.css">
+    <link rel="stylesheet" href="style.css">
 
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-
-    <script src="https://js.arcgis.com/4.17/"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+        var dojoConfig = {
+            parseOnLoad: true
+        };
+    </script>
+    <script src="https://js.arcgis.com/3.34/"></script>
     <script src="praksa.js"></script>
 </head>
 
-<body>
-    <div class="container">
-        <h2>Layers</h2>
-        <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#home">Home</a></li>
-            <li><a data-toggle="tab" href="#blockPointsTab">Census Block Points</a></li>
-            <li><a data-toggle="tab" href="#blockGroupTab">Census Block Group</a></li>
-            <li><a data-toggle="tab" href="#countiesTab">Counties</a></li>
-            <li><a data-toggle="tab" href="#statesTab">States</a></li>
-        </ul>
+<body class="nihilo">
+    <div id="mainWindow" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design:'headline', gutters:false" style="width:100%; height:100%;">
 
-        <div class="tab-content">
-            <div id="home" class="tab-pane fade in active">
-                <h3>Hide layer</h3>
-                <table id="toc" class="table">
-                    <tr>
-                        <td>Block Points Layer</td>
-                        <td><input type="checkbox" id="blockPoints" checked /></td>
-                    </tr>
-                    <tr>
-                        <td>Block Group Layer</td>
-                        <td><input type="checkbox" id="blockGroup" checked/></td>
-                    </tr>
-                    <tr>
-                        <td>Counties Layer</td>
-                        <td><input type="checkbox" id="counties" checked/></td>
-                    </tr>
-                    <tr>
-                        <td>State Layer</td>
-                        <td><input type="checkbox" id="state" checked/></td>
-                    </tr>
-                    <tr>
-                        <td>Basemap</td>
-                        <td><input type="checkbox" id="basemap" checked/></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="blockPointsTab" class="tab-pane fade">
-                <h3>Census Block Points</h3>
-                <form class="form-inline" id="filterPoints">
-                    <div class="form-group mb-2">
-                        <select id="points" class="form-control">
-                            <option value="HOUSEHOLDS">Households</option>
-                            <option value="STATE_FIPS">State fips</option>
-                            <option value="All">All</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <select id="operators1" class="form-control">
-                            <option value="less">&lt</option>
-                            <option value=">">></option>
-                            <option value="=">=</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-4 mb-3">
-                        <input type="number" id="pointValue" class="form-control" />
-                    </div>
-                    <button type="button" class="btn btn-primary mb-2" id="btn_point">Filter layer</button>
-                </form>
-                <button type="button" class="refresh btn btn-primary" id="refreshPoints">Refresh</button>
-            </div>
-            <div id="blockGroupTab" class="tab-pane fade">
-                <h3>Census Block Group</h3>
-                <form class="form-inline" id="filterGroup">
-                    <div class="form-group mb-2">
-                        <select id="group" class="form-control">
-                            <option value="FEMALES">Females</option>
-                            <option value="AGE_22_29">Age between 22 to 29</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <select id="operators2" class="form-control">
-                            <option value="less">&lt</option>
-                            <option value=">">></option>
-                            <option value="=">=</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-4 mb-3">
-                        <input type="number" id="groupValue" class="form-control" />
-                    </div>
-                    <button type="button" class="btn btn-primary mb-2" id="btn_group">Filter layer</button>
-                </form>
-                <button type="button" class="refresh btn btn-primary" id="refreshGroup">Refresh</button>
-            </div>
-            <div id="countiesTab" class="tab-pane fade">
-                <h3>Counties</h3>
-                <form class="form-inline" id="filterCounties">
-                    <div class="form-group mb-2">
-                        <select id="countiesID" class="form-control">
-                            <option value="NAME">Name</option>
-                            <option value="CNTY_FIPS">City fips</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <select id="operators3" class="form-control">
-                            <option value="=">=</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-4 mb-3">
-                        <input type="text" id="countieValue" class="form-control" />
-                    </div>
-                    <button type="submit" class="btn btn-primary mb-2" id="btn_counties">Filter layer</button>
-                </form>
-                <button type="button" class="refresh btn btn-primary" id="refreshCounties">Refresh</button>
-            </div>
-            <div id="statesTab" class="tab-pane fade">
-                <h3>States</h3>
-                <form class="form-inline" id="filterStates">
-                    <div class="form-group mb-2">
-                        <select id="states" class="form-control">
-                            <option value="STATE_NAME">State name </option>
-                            <option value="STATE_ABBR">State abbr</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <select id="operators4" class="form-control">
-                            <option value="=">=</option>
-                        </select>
-                    </div>
-                    <div class="form-group mx-sm-4 mb-3">
-                        <input type="text" id="stateValue" class="form-control" />
-                    </div>
-                    <button type="submit" class="btn btn-primary mb-2" id="btn_state">Filter layer</button>
-                </form>
-                <button type="button" class="refresh btn btn-primary" id="refreshStates">Refresh</button>
+        <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'left'" id="leftPane" style="width: 300px;">
+            <div data-dojo-type="dijit.layout.AccordionContainer">
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Home'">
+                    <h3>Hide layer</h3>
+                    <table id="toc" class="table">
+                        <tr>
+                            <td>Block Points Layer</td>
+                            <td><input type="checkbox" class='list_item' id="blockPoints" value=0 checked /></td>
+                        </tr>
+                        <tr>
+                            <td>Block Group Layer</td>
+                            <td><input type="checkbox" class='list_item' id="blockGroup" value=1 checked/></td>
+                        </tr>
+                        <tr>
+                            <td>Counties Layer</td>
+                            <td><input type="checkbox" class='list_item' id="counties" value=2 checked/></td>
+                        </tr>
+                        <tr>
+                            <td>State Layer</td>
+                            <td><input type="checkbox" class='list_item' id="state" value=3 checked/></td>
+                        </tr>
+                        <tr>
+                            <td>Basemap</td>
+                            <td><input type="checkbox" class='list_item' id="basemap" value=4 checked/></td>
+                        </tr>
+                    </table>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Census Block Points'">
+                    <form id="filterPointsForm">
+                        <h4>Filter</h4>
+                        <span>
+                            <select id="filterPoints">
+                                <option value="HOUSEHOLDS">Households</option>
+                                <option value="STATE_FIPS">State fips</option>
+                            </select>
+
+                            <select id="pointOperators1">
+                                <option value="less">&lt</option>
+                                <option value=">">></option>
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="number" id="pointValue1" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="filterPoint_btn">Filter layer</button>
+                    </form>
+                    <button type="button" class="refresh" id="refreshPoints">Refresh</button><br/><br/>
+                    <hr>
+                    <form id="searchPointsForm">
+                        <h4>Search</h4>
+                        <span>
+                            <select id="searchPoints">
+                                <option value="HOUSEHOLDS">Households</option>
+                                <option value="STATE_FIPS">State fips</option>
+                            </select>
+
+                            <select id="pointOperators2">
+                                <option value="less">&lt</option>
+                                <option value=">">></option>
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="number" id="pointValue2" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="searchPoint_btn">Search layer</button>
+                    </form>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Census Block Group'">
+                    <form id="filterGroupForm">
+                        <h4>Filter</h4>
+                        <span>
+                            <select id="filterGroup">
+                                <option value="FEMALES">Females</option>
+                                <option value="AGE_22_29">Age between 22 to 29</option>
+                            </select>
+                        
+                            <select id="groupOperators1">
+                                <option value="less">&lt</option>
+                                <option value=">">></option>
+                                <option value="=">=</option>
+                            </select>
+                            <input type="number" id="groupValue1" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="filterGroup_btn">Filter layer</button>
+                    </form>
+                    <button type="button" class="refresh" id="refreshGroup">Refresh</button><br/><br/>
+                    <hr>
+                    <form id="searchGroupForm">
+                        <h4>Search</h4>
+                        <span>
+                            <select id="searchGroup">
+                                <option value="FEMALES">Females</option>
+                                <option value="AGE_22_29">Age between 22 to 29</option>
+                            </select>
+
+                            <select id="groupOperators2">
+                                <option value="less">&lt</option>
+                                <option value=">">></option>
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="number" id="groupValue2" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="searchGroup_btn">Search layer</button>
+                    </form>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Counties'">
+                    <form id="filterCountiesForm">
+                        <h4>Filter</h4>
+                        <span>
+                            <select id="filterCounties">
+                                <option value="NAME">Name</option>
+                                <option value="CNTY_FIPS">City fips</option>
+                            </select>
+
+                            <select id="countieOperators1">
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="text" id="countieValue1" style="width: 100px;" />
+                        </span><br/><br/>
+                        <button type="button" id="filterCounties_btn">Filter layer</button>
+                    </form>
+                    <button type="button" class="refresh" id="refreshCounties">Refresh</button><br/><br/>
+                    <hr>
+                    <form id="searchCountiesForm">
+                        <h4>Search</h4>
+                        <span>
+                            <select id="searchCounties">
+                                <option value="NAME">Name</option>
+                                <option value="CNTY_FIPS">City fips</option>
+                            </select>
+
+                            <select id="countieOperators2">
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="number" id="countieValue2" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="searchCountie_btn">Search layer</button>
+                    </form>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'State'">
+                    <form id="filterStatesForm">
+                        <h4>Filter</h4>
+                        <span>
+                            <select id="filterStates">
+                                <option value="STATE_NAME">State name </option>
+                                <option value="STATE_ABBR">State abbr</option>
+                            </select>
+
+                            <select id="stateOperators1">
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="text" id="stateValue1" style="width: 100px;"/>
+                        </span>
+                        <button type="button" id="filterState_btn">Filter layer</button>
+                    </form>
+                    <button type="button" class="refresh" id="refreshStates">Refresh</button><br/><br/>
+                    <hr>
+                    <form id="searchStateForm">
+                        <h4>Search</h4>
+                        <span>
+                            <select id="searchState">
+                                <option value="STATE_NAME">State name </option>
+                                <option value="STATE_ABBR">State abbr</option>
+                            </select>
+
+                            <select id="stateOperators2">
+                                <option value="=">=</option>
+                            </select>
+
+                            <input type="number" id="stateValue2" style="width: 100px;"/>
+                        </span><br/><br/>
+                        <button type="button" id="searchState_btn">Search layer</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div><br/>
-    <div id="viewDiv"></div>
+        <div id="map" class="shadow" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+        </div>
+        <div id="serachLayout" class="shadow" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+            <h3 id="title">laaaa</h3>
+            <table class="searchTable">
+
+            </table>
+        </div>
+    </div>
 </body>
 
 </html>

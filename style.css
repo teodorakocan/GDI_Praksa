@@ -1,12 +1,58 @@
 html,
-body,
-#viewDiv {
-    padding: 0;
-    margin: 0;
+body {
     height: 100%;
     width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: white;
+    overflow: hidden;
+    font-family: "Kimberley", sans-serif
+}
+
+#leftPane {
+    margin: 3px;
+    padding: 5px;
+    width: 500px;
+    color: #3C1700;
+    background-color: white;
+    border: solid 2px #79663b;
+}
+
+#map {
+    margin: 5px;
+    border: solid 4px #79663b;
+}
+
+.shadow {
+    -o-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    box-shadow: 8px 8px 16px #323834;
+    -webkit-box-shadow: 8px 8px 16px #323834;
+    -moz-box-shadow: 8px 8px 16px #323834;
+    -o-box-shadow: 8px 8px 16px #323834;
+}
+
+.nihilo .dijitAccordionText {
+    margin-left: 4px;
+    margin-right: 4px;
+    color: #5c8503;
 }
 
 .refresh {
     float: right;
+}
+
+.searchTable,
+.searchTable td,
+.searchTable th {
+    border: 1px solid black;
+}
+
+.searchTable {
+    width: 100%;
+    border-collapse: collapse;
 }
