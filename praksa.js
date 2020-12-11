@@ -14,7 +14,7 @@ dojo.require("esri.map");
 var map;
 
 function init() {
-    require(["esri/layers/FeatureLayer", "dojo/on", "dojo/_base/lang", "esri/InfoTemplate"], function(FeatureLayer, on, lang, InfoTemplate) {
+    require(["esri/layers/FeatureLayer", "dojo/on", "esri/tasks/query", "esri/tasks/QueryTask", "dojo/_base/lang", "esri/InfoTemplate"], function(FeatureLayer, on, Query, QueryTask, lang, InfoTemplate) {
 
         const blockPointLayerToggle = document.getElementById("blockPoints");
         const blockGroupToggle = document.getElementById("blockGroup");
@@ -28,10 +28,16 @@ function init() {
         const filterCounties = document.getElementById("filterCounties_btn");
         const filterState = document.getElementById("filterState_btn");
 
+        const searchPoint = document.getElementById("searchPoint_btn");
+        const selectedPointSearch = document.getElementById("searchPoints");
+
+
         const refreshPoints = document.getElementById("refreshPoints");
         const refreshGroup = document.getElementById("refreshGroup");
         const refreshCounties = document.getElementById("refreshCounties");
         const refreshStates = document.getElementById("refreshStates");
+
+        const searchTable = document.getElementById("searchTable");
 
         map = new esri.Map("map", {
             basemap: "topo-vector",
@@ -69,6 +75,8 @@ function init() {
 
             blockPointLayerToggle.addEventListener("change", function() {
                 getLayer(POINT_ID).setVisibility(blockPointLayerToggle.checked);
+                var fields = [];
+                fields = getLayer(POINT_ID).fields;
             });
             blockGroupToggle.addEventListener("change", function() {
                 getLayer(GROUP_ID).setVisibility(blockGroupToggle.checked);
@@ -87,6 +95,8 @@ function init() {
                 }
             });*/
 
+
+            //FILTER
             selectedPointFilter.addEventListener("change", function() {
                 const input = document.getElementById("pointValue1");
                 if (selectedPointFilter.value == "STATE_FIPS") {
@@ -202,6 +212,81 @@ function init() {
             refreshStates.addEventListener("click", function() {
                 getLayer(STATES_ID).setDefinitionExpression("");
             });
+
+            selectedPointSearch.addEventListener("change", function() {
+                const input = document.getElementById("pointValue2");
+                if (selectedPointSearch.value == "STATE_FIPS") {
+                    input.type = "number";
+                } else {
+                    input.type = "text";
+                }
+            });
+            //SEARCH
+            searchPoint.addEventListener("click", function() {
+                const operator = document.getElementById("pointOperators2").value;
+                const pointValue2 = document.getElementById("pointValue2").value;
+                /*if (operator == "=") {
+                    //zumiraj i ispisi u tabeli
+                } else {
+                    //samo ispisi u tabeli
+                    var pointLayer = getLayer(POINT_ID);
+                }*/
+                if (selectedPointSearch.value == "STATE_FIPS") {
+                    if (operator == "less") {
+                        expression = selectedPointSearch.value + " " + "<" + " '" + pointValue2 + "'";
+                    } else {
+                        expression = selectedPointSearch.value + " " + operator + " '" + pointValue2 + "'";
+                    }
+                } else {
+                    if (operator == "less") {
+                        expression = selectedPointSearch.value + " " + "<" + " " + pointValue2;
+                    } else {
+                        expression = selectedPointSearch.value + " " + operator + " " + pointValue2;
+                    }
+                }
+
+                queryFeatureLayer(POINT_ID);
+            });
+
+            function queryFeatureLayer(index) {
+                var queryTask = new esri.tasks.QueryTask(URL + index);
+                var query = new esri.tasks.Query();
+                query.where = expression;
+                query.outFields = ["*"];
+                queryTask.execute(query, handleQuery);
+            }
+
+            function handleQuery(result) {
+                var table;
+                if (searchTable.childElementCount < 1) {
+                    table = document.createElement("table");
+                    table.classList.add("searchTable");
+                    table.setAttribute("id", "featureTable");;
+                } else {
+                    table = document.getElementById("featureTable");
+                    table.innerHTML = '';
+                }
+
+                const tr1 = document.createElement("tr");
+                for (let i = 0; i < result.fields.length; i++) {
+                    const field = document.createElement("th");
+                    field.innerText = result.fields[i].name;
+                    tr1.appendChild(field);
+                    table.appendChild(tr1);
+                }
+
+                for (let i = 0; i < result.features.length; i++) {
+                    const tr2 = document.createElement("tr");
+                    for (let j = 0; j < result.fields.length; j++) {
+                        const value = document.createElement("td");
+                        value.innerText = result.features[i].attributes[result.fields[j].name];
+                        tr2.appendChild(value);
+                        table.appendChild(tr2);
+                    }
+
+                }
+                searchTable.appendChild(table);
+            }
         }))
     });
 }

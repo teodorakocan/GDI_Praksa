@@ -46,13 +46,16 @@ body {
     float: right;
 }
 
-.searchTable,
-.searchTable td,
-.searchTable th {
+.searchTable {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
     border: 1px solid black;
 }
 
-.searchTable {
-    width: 100%;
-    border-collapse: collapse;
+.searchTable th,
+.searchTable td {
+    border: 1px solid black;
+    text-align: left;
+    padding: 8px;
 }
