@@ -14,12 +14,13 @@ dojo.require("esri.map");
 var map;
 
 function init() {
-    require(["esri/layers/FeatureLayer", "dojo/on", "esri/tasks/query", "esri/tasks/QueryTask", "dojo/_base/lang", "esri/InfoTemplate"], function(FeatureLayer, on, Query, QueryTask, lang, InfoTemplate) {
+    require(["esri/layers/FeatureLayer", "dojo/on", "dojo/_base/lang", "esri/InfoTemplate"], function(FeatureLayer, on, lang, InfoTemplate) {
 
         const blockPointLayerToggle = document.getElementById("blockPoints");
         const blockGroupToggle = document.getElementById("blockGroup");
         const countiesToggle = document.getElementById("counties");
         const stateToggle = document.getElementById("state");
+        const basemapToggle = document.getElementById("basemap");
 
         const selectedPointFilter = document.getElementById("filterPoints");
         const filterPoints = document.getElementById("filterPoint_btn");
@@ -30,7 +31,10 @@ function init() {
 
         const searchPoint = document.getElementById("searchPoint_btn");
         const selectedPointSearch = document.getElementById("searchPoints");
-
+        const searchGroup = document.getElementById("searchGroup_btn");
+        const selectedCountieSearch = document.getElementById("searchCounties");
+        const searchCounties = document.getElementById("searchCountie_btn");
+        const serachState = document.getElementById("searchState_btn");
 
         const refreshPoints = document.getElementById("refreshPoints");
         const refreshGroup = document.getElementById("refreshGroup");
@@ -87,13 +91,13 @@ function init() {
             stateToggle.addEventListener("change", function() {
                 getLayer(STATES_ID).setVisibility(countiesToggle.checked);
             });
-            /*basemapToggle.addEventListener("change", function() {
+            basemapToggle.addEventListener("change", function() {
                 if (!basemapToggle.checked) {
                     map.setBasemap();
                 } else {
                     map.setBasemap("topo-vector");
                 }
-            });*/
+            });
 
 
             //FILTER
@@ -225,12 +229,7 @@ function init() {
             searchPoint.addEventListener("click", function() {
                 const operator = document.getElementById("pointOperators2").value;
                 const pointValue2 = document.getElementById("pointValue2").value;
-                /*if (operator == "=") {
-                    //zumiraj i ispisi u tabeli
-                } else {
-                    //samo ispisi u tabeli
-                    var pointLayer = getLayer(POINT_ID);
-                }*/
+
                 if (selectedPointSearch.value == "STATE_FIPS") {
                     if (operator == "less") {
                         expression = selectedPointSearch.value + " " + "<" + " '" + pointValue2 + "'";
@@ -246,6 +245,59 @@ function init() {
                 }
 
                 queryFeatureLayer(POINT_ID);
+            });
+
+            searchGroup.addEventListener("click", function() {
+                const filter = document.getElementById("searchGroup").value;
+                const operator = document.getElementById("groupOperators2").value;
+                const groupValue = document.getElementById("groupValue2").value;
+
+                if (operator == "less") {
+                    expression = filter + " " + "<" + " " + groupValue;
+                } else {
+                    expression = filter + " " + operator + " " + groupValue;
+                }
+
+                queryFeatureLayer(GROUP_ID);
+            });
+
+            selectedCountieSearch.addEventListener("change", function() {
+                const input = document.getElementById("countieValue2");
+                const operators = document.getElementById("countieOperators2");
+                if (selectedCountieSearch.value == "CNTY_FIPS") {
+                    input.type = "number";
+                    addOperator(operators);
+                } else {
+                    input.type = "text";
+                    removeOperator(operators);
+                }
+            });
+
+            searchCounties.addEventListener("click", function() {
+                const operator = document.getElementById("countieOperators2").value;
+                const countieValue = document.getElementById("countieValue2").value;
+
+                if (selectedCountieSearch.value == "CNTY_FIPS") {
+                    if (operator == "less") {
+                        expression = selectedCountieSearch.value + " " + "<" + " '" + countieValue + "'";
+                    } else {
+                        expression = selectedCountieSearch.value + " " + operator + " '" + countieValue + "'";
+                    }
+                } else {
+                    expression = selectedCountieSearch.value + " " + operator + " '" + countieValue + "'";
+                }
+
+                queryFeatureLayer(COUNTIES_ID);
+            });
+
+            serachState.addEventListener("click", function() {
+                const filter = document.getElementById("searchState").value;
+                const operator = document.getElementById("stateOperators2").value;
+                const stateValue = document.getElementById("stateValue2").value;
+
+                expression = filter + " " + operator + " '" + stateValue + "'";
+
+                queryFeatureLayer(STATES_ID);
             });
 
             function queryFeatureLayer(index) {
@@ -282,9 +334,14 @@ function init() {
                         value.innerText = result.features[i].attributes[result.fields[j].name];
                         tr2.appendChild(value);
                         table.appendChild(tr2);
+                        if (result.fields[j].name == "STATE_NAME") {
+                            var stateExtent = result[i].geometry.getExtent().expand(5.0);
+                            map.setExtent(stateExtent);
+                        }
                     }
 
                 }
+
                 searchTable.appendChild(table);
             }
         }))
